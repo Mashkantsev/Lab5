@@ -29,7 +29,7 @@ public class GraphicDisplay extends JPanel {
     private final BasicStroke gridStroke;
     private final BasicStroke markerStroke;
     private final BasicStroke selectionStroke;
-    private final Color backgroundColor;
+    private Color backgroundColor = Color.WHITE;
     private final Font axisFont;
     private final Font labelsFont;
     private static final DecimalFormat formatter = (DecimalFormat)NumberFormat.getInstance();
@@ -39,14 +39,13 @@ public class GraphicDisplay extends JPanel {
     private final java.awt.geom.Rectangle2D.Double selectionRect = new java.awt.geom.Rectangle2D.Double();
 
     public GraphicDisplay() {
-        this.setBackground(Color.WHITE);
+        this.setBackground(backgroundColor);
         this.axisStroke = new BasicStroke(2.0F, 0, 0, 10.0F, null, 0.0F);
         this.gridStroke = new BasicStroke(1.0F, 0, 0, 10.0F, new float[]{4.0F, 4.0F}, 0.0F);
         this.markerStroke = new BasicStroke(1.0F, 0, 0, 10.0F, null, 0.0F);
         this.selectionStroke = new BasicStroke(1.0F, 0, 0, 10.0F, new float[]{10.0F, 10.0F}, 0.0F);
         this.axisFont = new Font("Serif", 1, 36);
         this.labelsFont = new Font("Serif", 0, 10);
-        this.backgroundColor = new Color(36);
         formatter.setMaximumFractionDigits(5);
         this.addMouseListener(new GraphicDisplay.MouseHandler());
         this.addMouseMotionListener(new GraphicDisplay.MouseMotionHandler());
@@ -102,7 +101,7 @@ public class GraphicDisplay extends JPanel {
             this.paintLabels(canvas);
             this.paintSelection(canvas);
             this.changecolor(canvas);
-            canvas.setPaint(Color.RED);
+            canvas.setPaint(backgroundColor);
         }
     }
 
@@ -327,11 +326,12 @@ public class GraphicDisplay extends JPanel {
 
                 GraphicDisplay.this.repaint();
             }
-
-        }
-
-        public void middlemouse(MouseEvent ev){
-            if(ev.getButton()==2) {
+            if (ev.getButton() == 2) {
+                int a = (int)(Math.random()*255);
+                int b = (int)(Math.random()*255);
+                int c = (int)(Math.random()*255);
+                GraphicDisplay.this.backgroundColor= new Color(a,b,c);
+                GraphicDisplay.this.setBackground(backgroundColor);
                 GraphicDisplay.this.repaint();
             }
         }
