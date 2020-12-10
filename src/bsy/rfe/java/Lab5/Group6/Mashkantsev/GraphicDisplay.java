@@ -1,11 +1,6 @@
 package bsy.rfe.java.Lab5.Group6.Mashkantsev;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -27,29 +22,31 @@ public class GraphicDisplay extends JPanel {
     private double minY;
     private double maxY;
     private double[][] viewport = new double[2][2];
-    private ArrayList<double[][]> undoHistory = new ArrayList(5);
+    private final ArrayList<double[][]> undoHistory = new ArrayList(5);
     private double scaleX;
     private double scaleY;
-    private BasicStroke axisStroke;
-    private BasicStroke gridStroke;
-    private BasicStroke markerStroke;
-    private BasicStroke selectionStroke;
-    private Font axisFont;
-    private Font labelsFont;
-    private static DecimalFormat formatter = (DecimalFormat)NumberFormat.getInstance();
+    private final BasicStroke axisStroke;
+    private final BasicStroke gridStroke;
+    private final BasicStroke markerStroke;
+    private final BasicStroke selectionStroke;
+    private final Color backgroundColor;
+    private final Font axisFont;
+    private final Font labelsFont;
+    private static final DecimalFormat formatter = (DecimalFormat)NumberFormat.getInstance();
     private boolean scaleMode = false;
     private boolean changeMode = false;
     private double[] originalPoint = new double[2];
-    private java.awt.geom.Rectangle2D.Double selectionRect = new java.awt.geom.Rectangle2D.Double();
+    private final java.awt.geom.Rectangle2D.Double selectionRect = new java.awt.geom.Rectangle2D.Double();
 
     public GraphicDisplay() {
         this.setBackground(Color.WHITE);
-        this.axisStroke = new BasicStroke(2.0F, 0, 0, 10.0F, (float[])null, 0.0F);
+        this.axisStroke = new BasicStroke(2.0F, 0, 0, 10.0F, null, 0.0F);
         this.gridStroke = new BasicStroke(1.0F, 0, 0, 10.0F, new float[]{4.0F, 4.0F}, 0.0F);
-        this.markerStroke = new BasicStroke(1.0F, 0, 0, 10.0F, (float[])null, 0.0F);
+        this.markerStroke = new BasicStroke(1.0F, 0, 0, 10.0F, null, 0.0F);
         this.selectionStroke = new BasicStroke(1.0F, 0, 0, 10.0F, new float[]{10.0F, 10.0F}, 0.0F);
         this.axisFont = new Font("Serif", 1, 36);
         this.labelsFont = new Font("Serif", 0, 10);
+        this.backgroundColor = new Color(36);
         formatter.setMaximumFractionDigits(5);
         this.addMouseListener(new GraphicDisplay.MouseHandler());
         this.addMouseMotionListener(new GraphicDisplay.MouseMotionHandler());
@@ -104,6 +101,8 @@ public class GraphicDisplay extends JPanel {
             this.paintMarkers(canvas);
             this.paintLabels(canvas);
             this.paintSelection(canvas);
+            this.changecolor(canvas);
+            canvas.setPaint(Color.RED);
         }
     }
 
@@ -247,6 +246,12 @@ public class GraphicDisplay extends JPanel {
         canvas.draw(new java.awt.geom.Line2D.Double(this.translateXYtoPoint(this.viewport[0][0], this.viewport[0][1]), this.translateXYtoPoint(this.viewport[1][0], this.viewport[0][1])));
     }
 
+    private void changecolor(Graphics2D canvas)
+    {
+        int i = (int)(Math.random()*10);
+        canvas.setPaint(new Color(i));
+    }
+
     private void paintAxis(Graphics2D canvas) {
         canvas.setStroke(this.axisStroke);
         canvas.setColor(Color.BLACK);
@@ -314,7 +319,7 @@ public class GraphicDisplay extends JPanel {
         public void mouseClicked(MouseEvent ev) {
             if (ev.getButton() == 3) {
                 if (GraphicDisplay.this.undoHistory.size() > 0) {
-                    GraphicDisplay.this.viewport = (double[][])GraphicDisplay.this.undoHistory.get(GraphicDisplay.this.undoHistory.size() - 1);
+                    GraphicDisplay.this.viewport = GraphicDisplay.this.undoHistory.get(GraphicDisplay.this.undoHistory.size() - 1);
                     GraphicDisplay.this.undoHistory.remove(GraphicDisplay.this.undoHistory.size() - 1);
                 } else {
                     GraphicDisplay.this.zoomToRegion(GraphicDisplay.this.minX, GraphicDisplay.this.maxY, GraphicDisplay.this.maxX, GraphicDisplay.this.minY);
@@ -323,6 +328,12 @@ public class GraphicDisplay extends JPanel {
                 GraphicDisplay.this.repaint();
             }
 
+        }
+
+        public void middlemouse(MouseEvent ev){
+            if(ev.getButton()==2) {
+                GraphicDisplay.this.repaint();
+            }
         }
 
         public void mousePressed(MouseEvent ev) {
@@ -335,7 +346,7 @@ public class GraphicDisplay extends JPanel {
                 } else {
                     GraphicDisplay.this.scaleMode = true;
                     GraphicDisplay.this.setCursor(Cursor.getPredefinedCursor(5));
-                    GraphicDisplay.this.selectionRect.setFrame((double)ev.getX(), (double)ev.getY(), 1.0D, 1.0D);
+                    GraphicDisplay.this.selectionRect.setFrame(ev.getX(), ev.getY(), 1.0D, 1.0D);
                 }
 
             }
@@ -386,7 +397,7 @@ public class GraphicDisplay extends JPanel {
                     newY = GraphicDisplay.this.viewport[1][1];
                 }
 
-                ((Double[])GraphicDisplay.this.graphicsData.get(GraphicDisplay.this.selectedMarker))[1] = newY;
+                GraphicDisplay.this.graphicsData.get(GraphicDisplay.this.selectedMarker)[1] = newY;
                 GraphicDisplay.this.repaint();
             } else {
                 double width = (double)ev.getX() - GraphicDisplay.this.selectionRect.getX();
